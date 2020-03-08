@@ -24,7 +24,7 @@ export default {
     script () {
       const script = document.createElement('script')
       script.onload = () => kakao.maps.load(this.init)
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=7d198afd202dd41605415274c11f620a`
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=7d198afd202dd41605415274c11f620a&libraries=services`
       document.head.appendChild(script)
     },
     init () {
@@ -50,6 +50,24 @@ export default {
           map.panTo(locPosition)
         })
       }
+
+      var geocoder = new kakao.maps.services.Geocoder()
+      geocoder.addressSearch('서울특별시 강남구 선릉로 668 (삼성동)', function(result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+          var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+          var marker = new kakao.maps.Marker({
+              map: map,
+              position: coords
+          })
+
+          var infowindow = new kakao.maps.InfoWindow({
+              content: `<div></div>`
+          })
+
+          infowindow.open(map, marker)
+        }
+      })
     }
   }
 }
