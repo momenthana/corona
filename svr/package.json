@@ -1,0 +1,16 @@
+{
+  "name": "svr",
+  "version": "1.0.0",
+  "scripts": {
+    "serve": "node index",
+    "dev": "nodemon index"
+  },
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "koa": "^2.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
