@@ -1,7 +1,7 @@
 <template>
   <v-content>
     1
-   </v-content>
+  </v-content>
 </template>
 
 <script>
