@@ -2,12 +2,13 @@
   "name": "svr",
   "version": "1.0.0",
   "scripts": {
-    "serve": "node index",
-    "dev": "nodemon index"
+    "serve": "node -r dotenv/config src/index",
+    "dev": "nodemon -r dotenv/config src/index dotenv_config_path=.env.dev"
   },
-  "main": "index.js",
+  "main": "src/index.js",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "koa": "^2.11.0",
     "koa-router": "^8.0.8"
   },

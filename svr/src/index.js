@@ -10,6 +10,6 @@ router.get('/', async (ctx, next) => {
 
 koa.use(router.routes()).use(router.allowedMethods())
 
-koa.listen(80, () => {
-  console.log('http://localhost:80')
+koa.listen(process.env.PORT, () => {
+  console.log(`http://localhost:${process.env.PORT}`)
 })
