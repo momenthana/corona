@@ -3,18 +3,20 @@
     app
     color="#9146ff"
     dark
-    shrink-on-scroll
     prominent
-    fade-img-on-scroll
-    scroll-target="#scrolling-techniques"
   >
-    <v-app-bar-nav-icon></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon @click="$store.state.drawer = true"></v-app-bar-nav-icon>
 
-    <v-toolbar-title>코로나 INFO</v-toolbar-title>
+    <v-toolbar-title>코로나.info</v-toolbar-title>
 
     <template v-slot:extension>
-      <v-tabs align-with-title>
-        <v-tab>A</v-tab>
+      <v-tabs
+        align-with-title
+        slider-color="white"
+      >
+        <v-tab @click="$store.state.tab = '선별진료소'">선별진료소</v-tab>
+        <v-tab @click="$store.state.tab = '국민안심병원'">국민안심병원</v-tab>
+        <v-tab @click="$store.state.tab = '공적마스크 판매처'">공적마스크 판매처</v-tab>
       </v-tabs>
     </template>
   </v-app-bar>

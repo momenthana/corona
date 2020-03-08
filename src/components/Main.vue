@@ -11,14 +11,20 @@ export default {
   name: 'Main',
 
   mounted () {
-    window.kakao && windows.kakao.map ? this.init() : this.script()
+    this.script()
+  },
+
+  watch: {
+    '$store.state.tab': () => {
+      console.log(1)
+    }
   },
 
   methods: {
     script () {
       const script = document.createElement('script')
       script.onload = () => kakao.maps.load(this.init)
-      script.src = `http://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=7d198afd202dd41605415274c11f620a`
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=7d198afd202dd41605415274c11f620a`
       document.head.appendChild(script)
     },
     init () {
@@ -29,6 +35,21 @@ export default {
       }
 
       var map = new kakao.maps.Map(container, options)
+
+      var mapTypeControl = new kakao.maps.MapTypeControl()
+      map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
+
+      var zoomControl = new kakao.maps.ZoomControl()
+      map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var lat = position.coords.latitude
+          var lon = position.coords.longitude
+          var locPosition = new kakao.maps.LatLng(lat, lon)
+          map.panTo(locPosition)
+        })
+      }
     }
   }
 }
