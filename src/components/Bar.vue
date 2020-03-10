@@ -13,6 +13,7 @@
       <v-tabs
         align-with-title
         slider-color="white"
+        color="white"
       >
         <v-tab @click="$store.state.tab = '공적마스크 판매처'">공적마스크 판매처</v-tab>
       </v-tabs>

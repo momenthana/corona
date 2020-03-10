@@ -111,10 +111,10 @@ export default {
                   <button class="close" onclick="document.getElementById('${element.code}').style.display = 'none'; document.getElementById('btn${element.code}').style.display = 'block'">
                     <span aria-hidden="true">&times;</span>
                   </button>
-                  <small class="text-muted">${element.created_at} 기준</small>
+                  <small class="text-muted">기준 ${element.created_at ? element.created_at : '자료 없음'}</small>
                   <h5 class="card-title"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${element.name}</h5>
                   <h6 class="card-subtitle mb-2 text-muted">${element.addr}</h6>
-                  <p class="card-text">${element.stock_at} 입고</p>
+                  <p class="card-text">입고 ${element.stock_at ? element.stock_at : '자료 없음'}</p>
                   <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank"><button class="btn btn-outline-primary">길찾기</button></a>
                 </div>
               </div>
