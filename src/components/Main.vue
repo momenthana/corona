@@ -51,7 +51,7 @@
   </v-content>
 </template>
 
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=dce438490f21b3aaa6e6176c852d813a"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=dce438490f21b3aaa6e6176c852d813a&libraries=services"></script>
 
 <script>
 import VueDaumMap from 'vue-daum-map'
@@ -67,9 +67,16 @@ export default {
     delayCenter: { lat: 0, lng: 0 },
     level: 3,
     mapTypeId: VueDaumMap.MapTypeId.NORMAL,
-    libraries: [],
-    map: null
+    libraries: ['services'],
+    map: null,
+    search: null
   }),
+
+  watch: {
+    '$store.state.addr': function () {
+      this.search()
+    }
+  },
 
   methods: {
     load (map) {
@@ -86,6 +93,24 @@ export default {
           var locPosition = new kakao.maps.LatLng(lat, lon)
           map.setCenter(locPosition)
         })
+      }
+
+      this.search = () => {
+        var ps = new kakao.maps.services.Places()
+
+        ps.keywordSearch(this.$store.state.addr, placesSearchCB)
+
+        function placesSearchCB (data, status, pagination) {
+          if (status === kakao.maps.services.Status.OK) {
+            var bounds = new kakao.maps.LatLngBounds()
+
+            for (var i=0; i<data.length; i++) {
+              bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x))
+            }
+
+            map.setBounds(bounds)
+          }
+        }
       }
 
       this.map = map
@@ -106,14 +131,14 @@ export default {
             `
 
             var card = `
-              <div id="${element.code}" class="card" style="margin-left: -50%; width: 100%; display: none;">
+              <div id="${element.code}" class="card" style="margin-left: -50%; width: 100%; max-width: 90vw; display: none;">
                 <div class="card-body">
                   <button class="close" onclick="document.getElementById('${element.code}').style.display = 'none'; document.getElementById('btn${element.code}').style.display = 'block'">
                     <span aria-hidden="true">&times;</span>
                   </button>
                   <small class="text-dark">기준 ${element.created_at ? element.created_at : '자료 없음'}</small>
                   <h5 class="card-title text-dark"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${element.name}</h5>
-                  <h6 class="card-subtitle text-dark">${element.addr}</h6>
+                  <h6 class="card-subtitle text-dark" style="white-space: normal;">${element.addr}</h6>
                   <p class="card-text text-dark">입고 ${element.stock_at ? element.stock_at : '자료 없음'}</p>
                   <a href="https://map.kakao.com/link/map/${element.name},${element.lat},${element.lng}" target="_blank"><button class="btn btn-outline-warning">Kakao 지도</button></a>
                   <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank"><button class="btn btn-outline-primary">Kakao 길찾기</button></a>
