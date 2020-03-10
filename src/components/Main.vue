@@ -1,5 +1,43 @@
 <template>
   <v-content>
+    <v-dialog
+      v-model="$store.state.dialog"
+      max-width="360"
+    >
+      <v-card
+        class="mx-auto"
+      >
+        <v-card-title class="headline">
+          Notice
+        </v-card-title>
+        <v-card-text>
+          <p class="text--primary">
+            이번 주는 서비스의 안정적 운영을 지켜보기 위하여 베타서비스입니다.
+          </p>
+          <p class="text--primary">
+            서비스되는 재고 현황 정보는 데이터 처리 및 전송으로 인해 실제 현장 판매처의 현황과 5분~10분 정도의 차이가 있습니다.
+          </p>
+          <p class="text--primary">
+            일부 약국에서는 번호표 배부 후 판매하는 약국도 있어 서비스되는 정보가 번호표 배부 현황을 반영하지는 못하고 있습니다.
+          </p>
+          <p class="text--primary">
+            마스크 현황 정보는 성인용 마스크를 대상으로 합니다.
+          </p>
+          <p class="text--primary">
+            어려운 환경에서도 일선에서 공헌해 주시는 약사님, 우체국 종사자분들 응원합니다!
+          </p>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            text
+            color="deep-purple accent-4"
+            @click="$store.state.dialog = false"
+          >
+            확인
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <vue-daum-map
       :appKey="appKey"
       :center.sync="center"
@@ -53,7 +91,7 @@ export default {
       this.map = map
     },
     center_changed () {
-      if (this.delayCenter.let + 0.3 < this.center.let || this.delayCenter.lng + 0.3 < this.center.lng || this.delayCenter.let - 0.3 > this.center.let || this.delayCenter.lng - 0.3 > this.center.lng) {
+      if (this.delayCenter.let + 0.05 < this.center.let || this.delayCenter.lng + 0.05 < this.center.lng || this.delayCenter.let - 0.05 > this.center.let || this.delayCenter.lng - 0.05 > this.center.lng) {
         this.delayCenter.let = this.center.let
         this.delayCenter.lng = this.center.lng
         axios.get(`https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=${this.center.lat}&lng=${this.center.lng}&m=10000`)
