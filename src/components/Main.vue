@@ -106,14 +106,14 @@ export default {
             `
 
             var card = `
-              <div id="${element.code}" class="card" style="display: none;">
+              <div id="${element.code}" class="card" style="margin-left: -50%; width: 100%; display: none;">
                 <div class="card-body">
                   <button class="close" onclick="document.getElementById('${element.code}').style.display = 'none'; document.getElementById('btn${element.code}').style.display = 'block'">
                     <span aria-hidden="true">&times;</span>
                   </button>
                   <small class="text-dark">기준 ${element.created_at ? element.created_at : '자료 없음'}</small>
                   <h5 class="card-title text-dark"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${element.name}</h5>
-                  <h6 class="card-subtitle mb-2 text-dark">${element.addr}</h6>
+                  <h6 class="card-subtitle text-dark">${element.addr}</h6>
                   <p class="card-text text-dark">입고 ${element.stock_at ? element.stock_at : '자료 없음'}</p>
                   <a href="https://map.kakao.com/link/map/${element.name},${element.lat},${element.lng}" target="_blank"><button class="btn btn-outline-warning">Kakao 지도</button></a>
                   <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank"><button class="btn btn-outline-primary">Kakao 길찾기</button></a>

@@ -3,7 +3,6 @@
     app
     color="#9146ff"
     dark
-    prominent
   >
     <v-app-bar-nav-icon @click="$store.state.drawer = true"></v-app-bar-nav-icon>
 
