@@ -100,25 +100,37 @@ export default {
             var position =  new kakao.maps.LatLng(element.lat, element.lng)
             var remain_stat = element.remain_stat === 'plenty' ? '100+' : element.remain_stat === 'some' ? '30+' : element.remain_stat === 'few' ? '1~30' : '소진'
             var color = element.remain_stat === 'plenty' ? 'success' : element.remain_stat === 'some' ? 'warning' : element.remain_stat === 'few' ? 'danger' : 'dark'
-            var content = `<div id="${element.code}" class="card" style="display: none;">
-                            <div class="card-body">
-                              <button class="close" onclick="document.getElementById('${element.code}').style.display = 'none'; document.getElementById('btn${element.code}').style.display = 'block'">
-                                <span aria-hidden="true">&times;</span>
-                              </button>
-                              <small class="text-muted">${element.created_at} 기준</small>
-                              <h5 class="card-title"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${element.name}</h5>
-                              <h6 class="card-subtitle mb-2 text-muted">${element.addr}</h6>
-                              <p class="card-text">${element.stock_at} 입고</p>
-                              <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank"><button class="btn btn-outline-primary">길찾기</button></a>
-                            </div>
-                          </div>
-                          <button id="btn${element.code}" class="btn btn-sm btn-${color}" onclick="document.getElementById('${element.code}').style.display = 'block'; document.getElementById('btn${element.code}').style.display = 'none'">${remain_stat}</button>
-                          `
 
-            var customOverlay = new kakao.maps.CustomOverlay({
+            var button = `
+              <button id="btn${element.code}" class="btn btn-sm btn-${color}" onclick="document.getElementById('${element.code}').style.display = 'block'; document.getElementById('btn${element.code}').style.display = 'none';">${remain_stat}</button>
+            `
+
+            var card = `
+              <div id="${element.code}" class="card" style="display: none;">
+                <div class="card-body">
+                  <button class="close" onclick="document.getElementById('${element.code}').style.display = 'none'; document.getElementById('btn${element.code}').style.display = 'block'">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <small class="text-muted">${element.created_at} 기준</small>
+                  <h5 class="card-title"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${element.name}</h5>
+                  <h6 class="card-subtitle mb-2 text-muted">${element.addr}</h6>
+                  <p class="card-text">${element.stock_at} 입고</p>
+                  <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank"><button class="btn btn-outline-primary">길찾기</button></a>
+                </div>
+              </div>
+            `
+
+            var buttonOverlay = new kakao.maps.CustomOverlay({
               map: this.map,
               position: position,
-              content: content
+              content: button
+            })
+
+            var cardOverlay = new kakao.maps.CustomOverlay({
+              map: this.map,
+              position: position,
+              content: card,
+              zIndex: 1
             })
           })
         })
