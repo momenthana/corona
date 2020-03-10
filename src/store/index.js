@@ -6,7 +6,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     drawer: false,
-    tab: '선별진료소'
+    tab: '공적마스크 판매처'
   },
   mutations: {
   },

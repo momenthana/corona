@@ -14,8 +14,6 @@
         align-with-title
         slider-color="white"
       >
-        <v-tab @click="$store.state.tab = '선별진료소'">선별진료소</v-tab>
-        <v-tab @click="$store.state.tab = '국민안심병원'">국민안심병원</v-tab>
         <v-tab @click="$store.state.tab = '공적마스크 판매처'">공적마스크 판매처</v-tab>
       </v-tabs>
     </template>
