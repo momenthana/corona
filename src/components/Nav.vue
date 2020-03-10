@@ -5,7 +5,7 @@
     app
   >
     <template v-slot:append>
-      <v-list>
+      <v-list class="mb-10">
         <v-list-item>
           <v-list-item-content>
             <v-btn tile outlined color="#9146ff" href="https://github.com/momenthana" target="_blank">
