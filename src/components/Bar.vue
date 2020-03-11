@@ -12,7 +12,7 @@
 
     <v-toolbar-items>
       <v-text-field
-        class="mt-2"
+        class="mt-1"
         solo-inverted
         clearable
         v-model="addr"

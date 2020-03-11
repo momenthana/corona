@@ -132,10 +132,10 @@ export default {
                   <button class="close" onclick="document.getElementById('${element.code}').style.display = 'none'; document.getElementById('btn${element.code}').style.display = 'block'">
                     <span aria-hidden="true">&times;</span>
                   </button>
-                  <small class="text-dark">기준 ${element.created_at ? element.created_at : '자료 없음'}</small>
+                  <small class="text-dark">${element.created_at ? element.created_at + ' 기준' : '기준 자료 없음'}</small>
                   <h5 class="card-title text-dark"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${element.name}</h5>
                   <h6 class="card-subtitle text-dark" style="white-space: normal;">${element.addr}</h6>
-                  <p class="card-text text-dark">입고 ${element.stock_at ? element.stock_at : '자료 없음'}</p>
+                  <p class="card-text text-dark">${element.stock_at ? element.stock_at + ' 입고' : '입고 자료 없음'}</p>
                   <a href="https://map.kakao.com/link/map/${element.name},${element.lat},${element.lng}" target="_blank"><button class="btn btn-outline-warning">Kakao 지도</button></a>
                   <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank"><button class="btn btn-outline-primary">Kakao 길찾기</button></a>
                 </div>
