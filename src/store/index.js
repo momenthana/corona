@@ -8,7 +8,8 @@ export default new Vuex.Store({
     drawer: false,
     tab: '공적마스크 판매처',
     dialog: true,
-    addr: ''
+    addr: '',
+    gps: 0
   },
   mutations: {
   },

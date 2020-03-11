@@ -81,10 +81,14 @@ export default {
     mapTypeId: VueDaumMap.MapTypeId.NORMAL,
     libraries: ['services'],
     map: null,
+    gps: null,
     search: null
   }),
 
   watch: {
+    '$store.state.gps': function () {
+      this.gps()
+    },
     '$store.state.addr': function () {
       this.search()
     }
@@ -105,6 +109,17 @@ export default {
           var locPosition = new kakao.maps.LatLng(lat, lon)
           map.panTo(locPosition)
         })
+      }
+
+      this.gps = () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude
+            var lon = position.coords.longitude
+            var locPosition = new kakao.maps.LatLng(lat, lon)
+            map.panTo(locPosition)
+          })
+        }
       }
 
       this.search = () => {

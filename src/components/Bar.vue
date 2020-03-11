@@ -10,6 +10,10 @@
 
     <v-spacer></v-spacer>
 
+    <v-btn icon>
+      <v-icon @click="$store.state.gps += 1">mdi-crosshairs-gps</v-icon>
+    </v-btn>
+
     <v-toolbar-items>
       <v-text-field
         class="mt-1"
