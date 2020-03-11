@@ -16,6 +16,7 @@
     "register-service-worker": "^1.6.2",
     "vue": "^2.6.11",
     "vue-daum-map": "^1.0.15",
+    "vue-router": "^3.1.5",
     "vuetify": "^2.2.11",
     "vuex": "^3.1.2"
   },
@@ -23,6 +24,7 @@
     "@vue/cli-plugin-babel": "~4.2.0",
     "@vue/cli-plugin-eslint": "~4.2.0",
     "@vue/cli-plugin-pwa": "~4.2.0",
+    "@vue/cli-plugin-router": "~4.2.0",
     "@vue/cli-plugin-vuex": "~4.2.0",
     "@vue/cli-service": "~4.2.0",
     "@vue/eslint-config-standard": "^5.1.0",
