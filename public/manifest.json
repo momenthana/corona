@@ -1,0 +1,16 @@
+{
+  "short_name": "코로나 INFO",
+  "name": "코로나 INFO",
+  "icons": [
+    {
+      "src": "/img/icons/512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FFFFFF",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#FFFFFF"
+}

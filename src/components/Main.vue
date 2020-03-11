@@ -136,8 +136,8 @@ export default {
                   <h5 class="card-title text-dark"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${element.name}</h5>
                   <h6 class="card-subtitle text-dark" style="white-space: normal;">${element.addr}</h6>
                   <p class="card-text text-dark">${element.stock_at ? element.stock_at + ' 입고' : '입고 자료 없음'}</p>
-                  <a href="https://map.kakao.com/link/map/${element.name},${element.lat},${element.lng}" target="_blank"><button class="btn btn-outline-warning">Kakao 지도</button></a>
-                  <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank"><button class="btn btn-outline-primary">Kakao 길찾기</button></a>
+                  <a href="https://map.kakao.com/link/map/${element.name},${element.lat},${element.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-warning">Kakao 지도</button></a>
+                  <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary">Kakao 길찾기</button></a>
                 </div>
               </div>
             `
