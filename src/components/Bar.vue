@@ -16,7 +16,7 @@
         solo-inverted
         clearable
         v-model="addr"
-        placeholder="주소"
+        placeholder="장소 검색"
         prepend-inner-icon="mdi-magnify"
         color="#9146ff"
         @keyup.native.enter="$store.state.addr = addr"

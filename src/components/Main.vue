@@ -26,10 +26,11 @@
           <p class="text--primary">
             어려운 환경에서도 일선에서 공헌해 주시는 약사님, 우체국 종사자분들 응원합니다!
           </p>
+          <a href="https://open.kakao.com/o/gKFJSh1b" target="_blink">카카오톡 오픈채팅방</a>
         </v-card-text>
         <v-card-actions>
           <v-btn
-            text
+            dark
             color="deep-purple accent-4"
             @click="$store.state.dialog = false"
           >
@@ -127,7 +128,7 @@ export default {
             var color = element.remain_stat === 'plenty' ? 'success' : element.remain_stat === 'some' ? 'warning' : element.remain_stat === 'few' ? 'danger' : 'dark'
 
             var button = `
-              <button id="btn${element.code}" class="btn btn-sm btn-${color}" onclick="document.getElementById('${element.code}').style.display = 'block'; document.getElementById('btn${element.code}').style.display = 'none';">${remain_stat}</button>
+              <button id="btn${element.code}" style="display: block;" class="btn btn-sm btn-${color}" onclick="document.getElementsByClassName('btn').forEach(element => { element.style.display = 'inline' }); document.getElementsByClassName('card').forEach(element => { element.style.display = 'none' });document.getElementById('${element.code}').style.display = 'block'; document.getElementById('btn${element.code}').style.display = 'none';">${remain_stat}</button>
             `
 
             var card = `
