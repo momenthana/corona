@@ -50,9 +50,19 @@
         :mapTypeId="mapTypeId"
         :libraries="libraries"
         @load="load"
-        @center_changed="center_changed"
+        @center_changed="this.request"
         style="width:100vw;height:100%;"
       />
+      <v-toolbar
+        floating
+        absolute
+        class="ma-3"
+      >
+        <v-btn icon>
+          <v-icon @click="$store.state.gps += 1">mdi-crosshairs-gps</v-icon>
+        </v-btn>
+        <v-switch v-model="empty" inset class="mt-5" label="소진 장소 숨기기"></v-switch>
+      </v-toolbar>
     </v-content>
   </v-app>
 </template>
@@ -82,10 +92,19 @@ export default {
     libraries: ['services'],
     map: null,
     gps: null,
-    search: null
+    search: null,
+    buttonOverlay: [],
+    cardOverlay: [],
+    empty: false
   }),
 
   watch: {
+    'empty': function () {
+      this.buttonOverlay.forEach(element => {
+        element.setMap(null)
+      })
+      this.request()
+    },
     '$store.state.gps': function () {
       this.gps()
     },
@@ -102,42 +121,45 @@ export default {
         axios.get(`https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=${this.center.lat}&lng=${this.center.lng}&m=10000`)
         .then(res => {
           res.data.stores.forEach(element => {
-            var position =  new kakao.maps.LatLng(element.lat, element.lng)
-            var remain_stat = element.remain_stat === 'plenty' ? '100+' : element.remain_stat === 'some' ? '30+' : element.remain_stat === 'few' ? '1~30' : element.created_at ? '소진' : '자료 없음'
-            var color = element.remain_stat === 'plenty' ? 'success' : element.remain_stat === 'some' ? 'warning' : element.remain_stat === 'few' ? 'danger' : 'dark'
+            console.log(element.remain_stat)
+            if(element.remain_stat !== (this.empty ? 'empty' : '') && element.remain_stat !== (this.empty ? null : '')) {
+              var position =  new kakao.maps.LatLng(element.lat, element.lng)
+              var remain_stat = element.remain_stat === 'plenty' ? '100+' : element.remain_stat === 'some' ? '30+' : element.remain_stat === 'few' ? '1~30' : element.created_at ? '소진' : '자료 없음'
+              var color = element.remain_stat === 'plenty' ? 'success' : element.remain_stat === 'some' ? 'warning' : element.remain_stat === 'few' ? 'danger' : 'dark'
 
-            var button = `
-              <button id="btn${element.code}" style="display: block;" class="btn btn-sm btn-${color}" onclick="document.getElementsByClassName('btn').forEach(element => { element.style.display = 'inline' }); document.getElementsByClassName('card').forEach(element => { element.style.display = 'none' });document.getElementById('${element.code}').style.display = 'block'; document.getElementById('btn${element.code}').style.display = 'none';">${remain_stat}</button>
-            `
+              var button = `
+                <button id="btn${element.code}" style="display: block;" class="btn btn-sm btn-${color}" onclick="document.getElementsByClassName('btn').forEach(element => { element.style.display = 'inline' }); document.getElementsByClassName('card').forEach(element => { element.style.display = 'none' });document.getElementById('${element.code}').style.display = 'block'; document.getElementById('btn${element.code}').style.display = 'none';">${remain_stat}</button>
+              `
 
-            var card = `
-              <div id="${element.code}" class="card" style="margin-left: -50%; width: 100%; max-width: 90vw; display: none;">
-                <div class="card-body">
-                  <button class="close" onclick="document.getElementById('${element.code}').style.display = 'none'; document.getElementById('btn${element.code}').style.display = 'block'">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                  <small class="text-dark">${element.created_at ? element.created_at + ' 기준' : '기준 자료 없음'}</small>
-                  <h5 class="card-title text-dark"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${element.name}</h5>
-                  <h6 class="card-subtitle text-dark" style="white-space: normal;">${element.addr}</h6>
-                  <p class="card-text text-dark">${element.stock_at ? element.stock_at + ' 입고' : '입고 자료 없음'}</p>
-                  <a href="https://map.kakao.com/link/map/${element.name},${element.lat},${element.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-warning">Kakao 지도</button></a>
-                  <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary">Kakao 길찾기</button></a>
+              var card = `
+                <div id="${element.code}" class="card" style="margin-left: -50%; width: 100%; max-width: 90vw; display: none;">
+                  <div class="card-body">
+                    <button class="close" onclick="document.getElementById('${element.code}').style.display = 'none'; document.getElementById('btn${element.code}').style.display = 'block'">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                    <small class="text-dark">${element.created_at ? element.created_at + ' 기준' : '기준 자료 없음'}</small>
+                    <h5 class="card-title text-dark"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${element.name}</h5>
+                    <h6 class="card-subtitle text-dark" style="white-space: normal;">${element.addr}</h6>
+                    <p class="card-text text-dark">${element.stock_at ? element.stock_at + ' 입고' : '입고 자료 없음'}</p>
+                    <a href="https://map.kakao.com/link/map/${element.name},${element.lat},${element.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-warning">Kakao 지도</button></a>
+                    <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary">Kakao 길찾기</button></a>
+                  </div>
                 </div>
-              </div>
-            `
+              `
 
-            var buttonOverlay = new kakao.maps.CustomOverlay({
-              map: this.map,
-              position: position,
-              content: button
-            })
+              this.buttonOverlay.push(new kakao.maps.CustomOverlay({
+                map: this.map,
+                position: position,
+                content: button
+              }))
 
-            var cardOverlay = new kakao.maps.CustomOverlay({
-              map: this.map,
-              position: position,
-              content: card,
-              zIndex: 1
-            })
+              this.cardOverlay.push(new kakao.maps.CustomOverlay({
+                map: this.map,
+                position: position,
+                content: card,
+                zIndex: 1
+              }))
+            }
           })
         })
       }
@@ -154,7 +176,7 @@ export default {
           var lat = position.coords.latitude
           var lng = position.coords.longitude
           var locPosition = new kakao.maps.LatLng(lat, lng)
-          map.panTo(locPosition)
+          map.setCenter(locPosition)
           map.setLevel(4)
           this.request()
         })
@@ -166,7 +188,7 @@ export default {
             var lat = position.coords.latitude
             var lon = position.coords.longitude
             var locPosition = new kakao.maps.LatLng(lat, lon)
-            map.panTo(locPosition)
+            map.setCenter(locPosition)
             map.setLevel(4)
           })
         }
@@ -179,7 +201,7 @@ export default {
 
         function placesSearchCB (data, status, pagination) {
           if (status === kakao.maps.services.Status.OK) {
-            map.panTo(new kakao.maps.LatLng(data[0].y, data[0].x))
+            map.setCenter(new kakao.maps.LatLng(data[0].y, data[0].x))
             map.setLevel(4)
           }
         }
@@ -188,9 +210,6 @@ export default {
       this.request()
 
       this.map = map
-    },
-    center_changed () {
-      this.request()
     }
   }
 }
