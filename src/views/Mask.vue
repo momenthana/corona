@@ -77,7 +77,7 @@ export default {
     appKey: 'dce438490f21b3aaa6e6176c852d813a',
     center: { lat: 37.5411, lng: 127.068 },
     delayCenter: { lat: 0, lng: 0 },
-    level: 3,
+    level: 4,
     mapTypeId: VueDaumMap.MapTypeId.NORMAL,
     libraries: ['services'],
     map: null,
@@ -95,48 +95,7 @@ export default {
   },
 
   methods: {
-    load (map) {
-      var mapTypeControl = new kakao.maps.MapTypeControl()
-      map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
-
-      var zoomControl = new kakao.maps.ZoomControl()
-      map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-          var lat = position.coords.latitude
-          var lon = position.coords.longitude
-          var locPosition = new kakao.maps.LatLng(lat, lon)
-          map.panTo(locPosition)
-        })
-      }
-
-      this.gps = () => {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            var lat = position.coords.latitude
-            var lon = position.coords.longitude
-            var locPosition = new kakao.maps.LatLng(lat, lon)
-            map.panTo(locPosition)
-          })
-        }
-      }
-
-      this.search = () => {
-        var ps = new kakao.maps.services.Places()
-
-        ps.keywordSearch(this.$store.state.addr, placesSearchCB)
-
-        function placesSearchCB (data, status, pagination) {
-          if (status === kakao.maps.services.Status.OK) {
-            map.panTo(new kakao.maps.LatLng(data[0].y, data[0].x))
-          }
-        }
-      }
-
-      this.map = map
-    },
-    center_changed () {
+    request () {
       if (this.delayCenter.let + 0.03 < this.center.let || this.delayCenter.lng + 0.03 < this.center.lng || this.delayCenter.let - 0.03 > this.center.let || this.delayCenter.lng - 0.03 > this.center.lng) {
         this.delayCenter.let = this.center.let
         this.delayCenter.lng = this.center.lng
@@ -182,6 +141,55 @@ export default {
           })
         })
       }
+    },
+    load (map) {
+      var mapTypeControl = new kakao.maps.MapTypeControl()
+      map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
+
+      var zoomControl = new kakao.maps.ZoomControl()
+      map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var lat = position.coords.latitude
+          var lon = position.coords.longitude
+          var locPosition = new kakao.maps.LatLng(lat, lon)
+          map.panTo(locPosition)
+          map.setLevel(4)
+        })
+      }
+
+      this.gps = () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude
+            var lon = position.coords.longitude
+            var locPosition = new kakao.maps.LatLng(lat, lon)
+            map.panTo(locPosition)
+            map.setLevel(4)
+          })
+        }
+      }
+
+      this.search = () => {
+        var ps = new kakao.maps.services.Places()
+
+        ps.keywordSearch(this.$store.state.addr, placesSearchCB)
+
+        function placesSearchCB (data, status, pagination) {
+          if (status === kakao.maps.services.Status.OK) {
+            map.panTo(new kakao.maps.LatLng(data[0].y, data[0].x))
+            map.setLevel(4)
+          }
+        }
+      }
+
+      this.request()
+
+      this.map = map
+    },
+    center_changed () {
+      this.request()
     }
   }
 }
