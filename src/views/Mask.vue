@@ -122,7 +122,7 @@ export default {
       this.map = map
     },
     center_changed () {
-      if (this.delayCenter.let + 0.05 < this.center.let || this.delayCenter.lng + 0.05 < this.center.lng || this.delayCenter.let - 0.05 > this.center.let || this.delayCenter.lng - 0.05 > this.center.lng) {
+      if (this.delayCenter.let + 0.03 < this.center.let || this.delayCenter.lng + 0.03 < this.center.lng || this.delayCenter.let - 0.03 > this.center.let || this.delayCenter.lng - 0.03 > this.center.lng) {
         this.delayCenter.let = this.center.let
         this.delayCenter.lng = this.center.lng
         axios.get(`https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=${this.center.lat}&lng=${this.center.lng}&m=10000`)
