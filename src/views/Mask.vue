@@ -150,12 +150,13 @@ export default {
       map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
 
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
+        navigator.geolocation.getCurrentPosition((position) => {
           var lat = position.coords.latitude
-          var lon = position.coords.longitude
-          var locPosition = new kakao.maps.LatLng(lat, lon)
+          var lng = position.coords.longitude
+          var locPosition = new kakao.maps.LatLng(lat, lng)
           map.panTo(locPosition)
           map.setLevel(4)
+          this.request()
         })
       }
 
