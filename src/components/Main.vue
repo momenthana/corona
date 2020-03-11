@@ -29,6 +29,7 @@
           <a href="https://open.kakao.com/o/gKFJSh1b" target="_blink">카카오톡 오픈채팅방</a>
         </v-card-text>
         <v-card-actions>
+          <v-spacer></v-spacer>
           <v-btn
             dark
             color="deep-purple accent-4"
@@ -92,7 +93,7 @@ export default {
           var lat = position.coords.latitude
           var lon = position.coords.longitude
           var locPosition = new kakao.maps.LatLng(lat, lon)
-          map.setCenter(locPosition)
+          map.panTo(locPosition)
         })
       }
 
@@ -103,13 +104,7 @@ export default {
 
         function placesSearchCB (data, status, pagination) {
           if (status === kakao.maps.services.Status.OK) {
-            var bounds = new kakao.maps.LatLngBounds()
-
-            for (var i=0; i<data.length; i++) {
-              bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x))
-            }
-
-            map.setBounds(bounds)
+            map.panTo(new kakao.maps.LatLng(data[0].y, data[0].x))
           }
         }
       }
@@ -124,7 +119,7 @@ export default {
         .then(res => {
           res.data.stores.forEach(element => {
             var position =  new kakao.maps.LatLng(element.lat, element.lng)
-            var remain_stat = element.remain_stat === 'plenty' ? '100+' : element.remain_stat === 'some' ? '30+' : element.remain_stat === 'few' ? '1~30' : '소진'
+            var remain_stat = element.remain_stat === 'plenty' ? '100+' : element.remain_stat === 'some' ? '30+' : element.remain_stat === 'few' ? '1~30' : element.created_at ? '소진' : '자료 없음'
             var color = element.remain_stat === 'plenty' ? 'success' : element.remain_stat === 'some' ? 'warning' : element.remain_stat === 'few' ? 'danger' : 'dark'
 
             var button = `
