@@ -68,16 +68,28 @@
           prepend-icon="mdi-magnify"
           @keyup.native.enter="$store.state.addr = addr"
         ></v-text-field>
-        <v-btn icon>
-          <v-icon @click="gps = !gps">mdi-crosshairs-gps</v-icon>
-        </v-btn>
         <v-tooltip bottom>
-          <template v-slot:activator="{ onRenew }">
-            <v-btn icon>
-              <v-icon
-                @click="renew = !renew"
-                v-on="onRenew"
-              >
+          <template v-slot:activator="{ on }">
+            <v-btn
+              icon
+              @click="gps = !gps"
+              v-on="on"
+            >
+              <v-icon>
+                mdi-crosshairs-gps
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>내 위치 찾기</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              icon
+              @click="renew = !renew"
+              v-on="on"
+            >
+              <v-icon>
                 mdi-autorenew
               </v-icon>
             </v-btn>
@@ -85,13 +97,14 @@
           <span>새로고침</span>
         </v-tooltip>
         <v-tooltip bottom>
-          <template v-slot:activator="{ onEmpty }">
+          <template v-slot:activator="{ on }">
             <v-switch
-              v-model="empty"
+              hide-details
               inset
+              v-model="empty"
               color="orange"
-              v-on="onEmpty"
-              class="mt-5 ml-5"
+              v-on="on"
+              class="ml-3"
             ></v-switch>
           </template>
           <span>소진된 장소 숨기기</span>
@@ -150,11 +163,19 @@ export default {
       this.request()
     },
     'gps': function () {
+      this.buttonOverlay.forEach(element => {
+        element.setMap(null)
+      })
       this.location()
+      this.delayCenter = { let: 0, lng: 0 }
       this.request()
     },
     '$store.state.addr': function () {
+      this.buttonOverlay.forEach(element => {
+        element.setMap(null)
+      })
       this.search()
+      this.delayCenter = { let: 0, lng: 0 }
       this.request()
     }
   },
@@ -166,7 +187,7 @@ export default {
         axios.get(`https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=${this.center.lat}&lng=${this.center.lng}&m=10000`)
         .then(res => {
           res.data.stores.forEach(element => {
-            if(element.remain_stat !== (this.empty ? 'empty' : '') && element.remain_stat !== (this.empty ? null : '')) {
+            if(this.empty ? (element.remain_stat === 'plenty' || element.remain_stat === 'some' || element.remain_stat === 'few') : true) {
               var position =  new kakao.maps.LatLng(element.lat, element.lng)
               var remain_stat = element.remain_stat === 'plenty' ? '100+' : element.remain_stat === 'some' ? '30+' : element.remain_stat === 'few' ? '1~30' : element.created_at ? '소진' : '자료 없음'
               var color = element.remain_stat === 'plenty' ? 'success' : element.remain_stat === 'some' ? 'warning' : element.remain_stat === 'few' ? 'danger' : 'dark'
