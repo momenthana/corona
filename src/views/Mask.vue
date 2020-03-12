@@ -58,10 +58,44 @@
         absolute
         class="ma-3"
       >
+        <v-text-field
+          hide-details
+          single-line
+          clearable
+          color="#9146ff"
+          v-model="addr"
+          placeholder="장소 검색"
+          prepend-icon="mdi-magnify"
+          @keyup.native.enter="$store.state.addr = addr"
+        ></v-text-field>
         <v-btn icon>
-          <v-icon @click="$store.state.gps += 1">mdi-crosshairs-gps</v-icon>
+          <v-icon @click="gps = !gps">mdi-crosshairs-gps</v-icon>
         </v-btn>
-        <v-switch v-model="empty" inset class="mt-5" label="소진 장소 숨기기"></v-switch>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ onRenew }">
+            <v-btn icon>
+              <v-icon
+                @click="renew = !renew"
+                v-on="onRenew"
+              >
+                mdi-autorenew
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>새로고침</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ onEmpty }">
+            <v-switch
+              v-model="empty"
+              inset
+              color="orange"
+              v-on="onEmpty"
+              class="mt-5 ml-5"
+            ></v-switch>
+          </template>
+          <span>소진된 장소 숨기기</span>
+        </v-tooltip>
       </v-toolbar>
     </v-content>
   </v-app>
@@ -92,36 +126,46 @@ export default {
     libraries: ['services'],
     map: null,
     gps: null,
+    location: null,
     search: null,
     buttonOverlay: [],
     cardOverlay: [],
-    empty: false
+    empty: false,
+    renew: false,
   }),
 
   watch: {
+    'renew': function () {
+      this.buttonOverlay.forEach(element => {
+        element.setMap(null)
+      })
+      this.delayCenter = { let: 0, lng: 0 }
+      this.request()
+    },
     'empty': function () {
       this.buttonOverlay.forEach(element => {
         element.setMap(null)
       })
+      this.delayCenter = { let: 0, lng: 0 }
       this.request()
     },
-    '$store.state.gps': function () {
-      this.gps()
+    'gps': function () {
+      this.location()
+      this.request()
     },
     '$store.state.addr': function () {
       this.search()
+      this.request()
     }
   },
 
   methods: {
     request () {
       if (this.delayCenter.let + 0.03 < this.center.let || this.delayCenter.lng + 0.03 < this.center.lng || this.delayCenter.let - 0.03 > this.center.let || this.delayCenter.lng - 0.03 > this.center.lng) {
-        this.delayCenter.let = this.center.let
-        this.delayCenter.lng = this.center.lng
+        this.delayCenter = { let: this.center.let, lng: this.center.lng }
         axios.get(`https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=${this.center.lat}&lng=${this.center.lng}&m=10000`)
         .then(res => {
           res.data.stores.forEach(element => {
-            console.log(element.remain_stat)
             if(element.remain_stat !== (this.empty ? 'empty' : '') && element.remain_stat !== (this.empty ? null : '')) {
               var position =  new kakao.maps.LatLng(element.lat, element.lng)
               var remain_stat = element.remain_stat === 'plenty' ? '100+' : element.remain_stat === 'some' ? '30+' : element.remain_stat === 'few' ? '1~30' : element.created_at ? '소진' : '자료 없음'
@@ -165,12 +209,6 @@ export default {
       }
     },
     load (map) {
-      var mapTypeControl = new kakao.maps.MapTypeControl()
-      map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT)
-
-      var zoomControl = new kakao.maps.ZoomControl()
-      map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT)
-
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           var lat = position.coords.latitude
@@ -182,7 +220,7 @@ export default {
         })
       }
 
-      this.gps = () => {
+      this.location = () => {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
             var lat = position.coords.latitude

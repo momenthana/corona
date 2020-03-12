@@ -8,22 +8,6 @@
 
     <v-toolbar-title>코로나.info</v-toolbar-title>
 
-    <v-spacer></v-spacer>
-
-    <v-toolbar-items>
-      <v-text-field
-        class="mt-1"
-        solo-inverted
-        clearable
-        v-model="addr"
-        placeholder="장소 검색"
-        prepend-inner-icon="mdi-magnify"
-        color="#9146ff"
-        @keyup.native.enter="$store.state.addr = addr"
-      >
-      </v-text-field>
-    </v-toolbar-items>
-
     <template v-slot:extension>
       <v-tabs
         align-with-title
