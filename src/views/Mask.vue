@@ -66,7 +66,7 @@
           v-model="addr"
           placeholder="장소 검색"
           prepend-icon="mdi-magnify"
-          @keyup.native.enter="$store.state.addr = addr"
+          @keyup.native.enter="address = addr"
         ></v-text-field>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
@@ -138,46 +138,34 @@ export default {
     mapTypeId: VueDaumMap.MapTypeId.NORMAL,
     libraries: ['services'],
     map: null,
-    gps: null,
+    addr: null,
     location: null,
     search: null,
     buttonOverlay: [],
     cardOverlay: [],
+    address: false,
+    gps: false,
     empty: false,
     renew: false,
   }),
 
   watch: {
     'renew': function () {
-      this.buttonOverlay.forEach(element => {
-        element.setMap(null)
-      })
-      this.delayCenter = { let: 0, lng: 0 }
+      this.remove()
       this.request()
     },
     'empty': function () {
-      this.buttonOverlay.forEach(element => {
-        element.setMap(null)
-      })
-      this.delayCenter = { let: 0, lng: 0 }
+      this.remove()
       this.request()
     },
     'gps': function () {
-      this.buttonOverlay.forEach(element => {
-        element.setMap(null)
-      })
-      this.location()
-      this.delayCenter = { let: 0, lng: 0 }
-      this.request()
+      this.remove()
+      this.location(this.request)
     },
-    '$store.state.addr': function () {
-      this.buttonOverlay.forEach(element => {
-        element.setMap(null)
-      })
-      this.search()
-      this.delayCenter = { let: 0, lng: 0 }
-      this.request()
-    }
+    'address': function () {
+      this.remove()
+      this.search(this.request)
+    },
   },
 
   methods: {
@@ -229,39 +217,46 @@ export default {
         })
       }
     },
+    remove () {
+      this.buttonOverlay.forEach(element => {
+        element.setMap(null)
+      })
+      this.buttonOverlay = []
+      this.delayCenter = { let: 0, lng: 0 }
+    },
     load (map) {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           var lat = position.coords.latitude
           var lng = position.coords.longitude
-          var locPosition = new kakao.maps.LatLng(lat, lng)
-          map.setCenter(locPosition)
           map.setLevel(4)
+          map.setCenter(new kakao.maps.LatLng(lat, lng))
           this.request()
         })
       }
 
-      this.location = () => {
+      this.location = (request) => {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
             var lat = position.coords.latitude
             var lon = position.coords.longitude
-            var locPosition = new kakao.maps.LatLng(lat, lon)
-            map.setCenter(locPosition)
             map.setLevel(4)
+            map.setCenter(new kakao.maps.LatLng(lat, lon))
+            request()
           })
         }
       }
 
-      this.search = () => {
+      this.search = (request) => {
         var ps = new kakao.maps.services.Places()
 
-        ps.keywordSearch(this.$store.state.addr, placesSearchCB)
+        ps.keywordSearch(this.address, placesSearchCB)
 
         function placesSearchCB (data, status, pagination) {
           if (status === kakao.maps.services.Status.OK) {
-            map.setCenter(new kakao.maps.LatLng(data[0].y, data[0].x))
             map.setLevel(4)
+            map.setCenter(new kakao.maps.LatLng(data[0].y, data[0].x))
+            request()
           }
         }
       }

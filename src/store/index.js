@@ -7,9 +7,7 @@ export default new Vuex.Store({
   state: {
     drawer: false,
     tab: '공적마스크 판매처',
-    dialog: true,
-    addr: '',
-    gps: 0
+    dialog: true
   },
   mutations: {
   },
