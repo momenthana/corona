@@ -29,7 +29,7 @@
             <p class="text--primary">
               어려운 환경에서도 일선에서 공헌해 주시는 약사님, 우체국 종사자분들 응원합니다!
             </p>
-            <a href="https://open.kakao.com/o/gKFJSh1b" target="_blink">카카오톡 오픈채팅방</a>
+            <a href="https://open.kakao.com/o/gKFJSh1b" target="_blink" style="text-decoration: none;">카카오톡 오픈채팅방</a>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -221,7 +221,11 @@ export default {
       this.buttonOverlay.forEach(element => {
         element.setMap(null)
       })
+      this.cardOverlay.forEach(element => {
+        element.setMap(null)
+      })
       this.buttonOverlay = []
+      this.cardOverlay = []
       this.delayCenter = { let: 0, lng: 0 }
     },
     load (map) {
