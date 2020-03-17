@@ -4,7 +4,7 @@
     <Nav/>
     <v-content>
       <v-dialog
-        v-model="$store.state.dialog"
+        v-model="dialog"
         max-width="360"
       >
         <v-card
@@ -15,16 +15,10 @@
           </v-card-title>
           <v-card-text>
             <p class="text--primary">
-              이번 주는 서비스의 안정적 운영을 지켜보기 위하여 베타서비스입니다.
-            </p>
-            <p class="text--primary">
               서비스되는 재고 현황 정보는 데이터 처리 및 전송으로 인해 실제 현장 판매처의 현황과 5분~10분 정도의 차이가 있습니다.
             </p>
             <p class="text--primary">
               일부 약국에서는 번호표 배부 후 판매하는 약국도 있어 서비스되는 정보가 번호표 배부 현황을 반영하지는 못하고 있습니다.
-            </p>
-            <p class="text--primary">
-              마스크 현황 정보는 성인용 마스크를 대상으로 합니다.
             </p>
             <p class="text--primary">
               어려운 환경에서도 일선에서 공헌해 주시는 약사님, 우체국 종사자분들 응원합니다!
@@ -32,11 +26,18 @@
             <a href="https://open.kakao.com/o/gKFJSh1b" target="_blink" style="text-decoration: none;">카카오톡 오픈채팅방</a>
           </v-card-text>
           <v-card-actions>
+            <v-btn
+              dark
+              color="deep-orange accent-4"
+              @click="this.close"
+            >
+              숨기기
+            </v-btn>
             <v-spacer></v-spacer>
             <v-btn
               dark
               color="deep-purple accent-4"
-              @click="$store.state.dialog = false"
+              @click="dialog = false"
             >
               확인
             </v-btn>
@@ -147,6 +148,7 @@ export default {
     gps: false,
     empty: false,
     renew: false,
+    dialog: localStorage.getItem('dialog') ? false : true
   }),
 
   watch: {
@@ -166,9 +168,18 @@ export default {
       this.remove()
       this.search(this.request)
     },
+    '$store.state.tab': function () {
+      if (this.$store.state.tab === 1 || this.$store.state.tab === 2) {
+        alert('아직 지원하지 않는 기능입니다!')
+      }
+    }
   },
 
   methods: {
+    close () {
+      this.dialog = false
+      localStorage.setItem('dialog', false)
+    },
     request () {
       if (this.delayCenter.let + 0.03 < this.center.let || this.delayCenter.lng + 0.03 < this.center.lng || this.delayCenter.let - 0.03 > this.center.let || this.delayCenter.lng - 0.03 > this.center.lng) {
         this.delayCenter = { let: this.center.let, lng: this.center.lng }
