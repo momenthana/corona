@@ -10,7 +10,7 @@
 
     <template v-slot:extension>
       <v-tabs
-        align-with-title
+        :align-with-title="!$vuetify.breakpoint.xsOnly"
         slider-color="white"
         color="white"
         v-model="$store.state.tab"

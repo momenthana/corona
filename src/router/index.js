@@ -1,19 +1,19 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Mask from '../views/Mask.vue'
+import Main from '../views/Main.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Mask',
-    component: Mask
+    name: 'Main',
+    component: Main
   }
 ]
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: process.env.IS_ELECTRON ? 'hash' : 'history',
   base: process.env.BASE_URL,
   routes
 })
