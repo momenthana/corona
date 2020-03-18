@@ -73,7 +73,7 @@
           <template v-slot:activator="{ on }">
             <v-btn
               icon
-              @click="gps = !gps"
+              @click="remove(); location();"
               v-on="on"
             >
               <v-icon>
@@ -142,12 +142,10 @@ export default {
     libraries: ['services'],
     map: null,
     addr: null,
-    location: null,
     search: null,
     buttonOverlay: [],
     cardOverlay: [],
     address: false,
-    gps: false,
     empty: false,
     renew: false,
     dialog: localStorage.getItem('dialog') ? false : true
@@ -161,10 +159,6 @@ export default {
     'empty': function () {
       this.remove()
       this.request()
-    },
-    'gps': function () {
-      this.remove()
-      this.location(this.request)
     },
     'address': function () {
       this.remove()
@@ -196,6 +190,51 @@ export default {
     close () {
       this.dialog = false
       localStorage.setItem('dialog', false)
+    },
+    load (map) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          var lat = position.coords.latitude
+          var lng = position.coords.longitude
+          map.setLevel(4)
+          map.setCenter(new kakao.maps.LatLng(lat, lng))
+          this.request()
+        })
+      }
+
+      this.search = (request) => {
+        var ps = new kakao.maps.services.Places()
+
+        ps.keywordSearch(this.address, placesSearchCB)
+
+        function placesSearchCB (data, status, pagination) {
+          if (status === kakao.maps.services.Status.OK) {
+            map.setLevel(4)
+            map.setCenter(new kakao.maps.LatLng(data[0].y, data[0].x))
+            request()
+          }
+        }
+      }
+
+      this.request()
+
+      this.map = map
+    },
+    location () {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+          var lat = pos.coords.latitude
+          var lon = pos.coords.longitude
+
+          setCenter(lat, lon)
+        })
+      }
+
+      let setCenter = (lat, lon) => {
+        this.map.setLevel(4)
+        this.map.setCenter(new kakao.maps.LatLng(lat, lon))
+        this.request()
+      }
     },
     request () {
       if ((this.$store.state.tab === 0 || this.$store.state.tab === 3) && (this.delayCenter.let + 0.03 < this.center.let || this.delayCenter.lng + 0.03 < this.center.lng || this.delayCenter.let - 0.03 > this.center.let || this.delayCenter.lng - 0.03 > this.center.lng)) {
@@ -363,47 +402,6 @@ export default {
       this.buttonOverlay = []
       this.cardOverlay = []
       this.delayCenter = { let: 0, lng: 0 }
-    },
-    load (map) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          var lat = position.coords.latitude
-          var lng = position.coords.longitude
-          map.setLevel(4)
-          map.setCenter(new kakao.maps.LatLng(lat, lng))
-          this.request()
-        })
-      }
-
-      this.location = (request) => {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            var lat = position.coords.latitude
-            var lon = position.coords.longitude
-            map.setLevel(4)
-            map.setCenter(new kakao.maps.LatLng(lat, lon))
-            request()
-          })
-        }
-      }
-
-      this.search = (request) => {
-        var ps = new kakao.maps.services.Places()
-
-        ps.keywordSearch(this.address, placesSearchCB)
-
-        function placesSearchCB (data, status, pagination) {
-          if (status === kakao.maps.services.Status.OK) {
-            map.setLevel(4)
-            map.setCenter(new kakao.maps.LatLng(data[0].y, data[0].x))
-            request()
-          }
-        }
-      }
-
-      this.request()
-
-      this.map = map
     }
   }
 }
