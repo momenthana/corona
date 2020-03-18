@@ -67,7 +67,7 @@
           v-model="addr"
           placeholder="장소 검색"
           prepend-icon="mdi-magnify"
-          @keyup.native.enter="address = addr"
+          @keyup.native.enter="remove(); search();"
         ></v-text-field>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
@@ -140,12 +140,9 @@ export default {
     level: 4,
     mapTypeId: VueDaumMap.MapTypeId.NORMAL,
     libraries: ['services'],
-    map: null,
     addr: null,
-    search: null,
     buttonOverlay: [],
     cardOverlay: [],
-    address: false,
     empty: false,
     renew: false,
     dialog: localStorage.getItem('dialog') ? false : true
@@ -162,7 +159,7 @@ export default {
     },
     'address': function () {
       this.remove()
-      this.search(this.request)
+      this.search()
     },
     '$store.state.tab': function () {
       if (this.$store.state.tab === 0) {
@@ -202,23 +199,25 @@ export default {
         })
       }
 
-      this.search = (request) => {
-        var ps = new kakao.maps.services.Places()
-
-        ps.keywordSearch(this.address, placesSearchCB)
-
-        function placesSearchCB (data, status, pagination) {
-          if (status === kakao.maps.services.Status.OK) {
-            map.setLevel(4)
-            map.setCenter(new kakao.maps.LatLng(data[0].y, data[0].x))
-            request()
-          }
-        }
-      }
-
       this.request()
 
       this.map = map
+    },
+    search () {
+      var ps = new kakao.maps.services.Places()
+      ps.keywordSearch(this.addr, placesSearchCB)
+
+      function placesSearchCB (data, status, pagination) {
+        if (status === kakao.maps.services.Status.OK) {
+          setCenter(data[0].y, data[0].x)
+        }
+      }
+
+      let setCenter = (lat, lon) => {
+        this.map.setLevel(4)
+        this.map.setCenter(new kakao.maps.LatLng(lat, lon))
+        this.request()
+      }
     },
     location () {
       if (navigator.geolocation) {
