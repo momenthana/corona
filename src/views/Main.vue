@@ -175,12 +175,14 @@ export default {
         this.remove()
         this.request()
         this.triage()
+        this.hospital()
       }
       if (this.$store.state.tab === 1) {
         this.remove()
         this.triage()
       }
       if (this.$store.state.tab === 2) {
+        this.hospital()
         this.remove()
       }
       if (this.$store.state.tab === 3) {
@@ -207,21 +209,20 @@ export default {
               var color = element.remain_stat === 'plenty' ? 'success' : element.remain_stat === 'some' ? 'warning' : element.remain_stat === 'few' ? 'danger' : 'dark'
 
               var button = `
-                <button id="btn${element.code}" style="display: block;" class="btn btn-sm btn-${color}" onclick="document.getElementsByClassName('btn').forEach(element => { element.style.display = 'inline' }); document.getElementsByClassName('card').forEach(element => { element.style.display = 'none' });document.getElementById('${element.code}').style.display = 'block'; document.getElementById('btn${element.code}').style.display = 'none';">${remain_stat}</button>
+                <button id="maskBtn${element.code}" style="display: block;" class="btn btn-sm btn-${color}" onclick="document.getElementsByClassName('btn').forEach(element => { element.style.display = 'inline' }); document.getElementsByClassName('card').forEach(element => { element.style.display = 'none' });document.getElementById('maskCard${element.code}').style.display = 'block'; document.getElementById('maskBtn${element.code}').style.display = 'none';">${remain_stat}</button>
               `
 
               var card = `
-                <div id="${element.code}" class="card" style="margin-left: -50%; width: 100%; max-width: 90vw; display: none;">
+                <div id="maskCard${element.code}" class="card" style="margin-left: -50%; width: 100%; min-width: 260px; display: none;">
                   <div class="card-body">
-                    <button class="close" onclick="document.getElementById('${element.code}').style.display = 'none'; document.getElementById('btn${element.code}').style.display = 'block'">
+                    <button class="close" onclick="document.getElementById('maskCard${element.code}').style.display = 'none'; document.getElementById('maskBtn${element.code}').style.display = 'block'">
                       <span aria-hidden="true">&times;</span>
                     </button>
                     <small class="text-dark">${element.created_at ? element.created_at + ' 기준' : '기준 자료 없음'}</small>
                     <h5 class="card-title text-dark"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${element.name}</h5>
                     <h6 class="card-subtitle text-dark" style="white-space: normal;">${element.addr}</h6>
                     <p class="card-text text-dark">${element.stock_at ? element.stock_at + ' 입고' : '입고 자료 없음'}</p>
-                    <a href="https://map.kakao.com/link/map/${element.name},${element.lat},${element.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-warning">Kakao 지도</button></a>
-                    <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary">Kakao 길찾기</button></a>
+                    <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary btn-block">길찾기</button></a>
                   </div>
                 </div>
               `
@@ -246,7 +247,7 @@ export default {
     triage () {
       if (true) {
         csv()
-        .fromStream(request.get('https://코로나.info/선별진료소목록.csv'))
+        .fromStream(request.get('https://코로나.info/선별진료소.csv'))
         .then((rows)=>{
           var ps = new kakao.maps.services.Places()
 
@@ -262,7 +263,7 @@ export default {
                 `
 
                 var card = `
-                  <div id="triageCard${key}" class="card" style="margin-left: -50%; width: 100%; max-width: 90vw; display: none;">
+                  <div id="triageCard${key}" class="card" style="margin-left: -50%; width: 100%; min-width: 260px; display: none;">
                     <div class="card-body">
                       <button class="close" onclick="document.getElementById('triageCard${key}').style.display = 'none'; document.getElementById('triageBtn${key}').style.display = 'block'">
                         <span aria-hidden="true">&times;</span>
@@ -271,8 +272,61 @@ export default {
                       <h5 class="card-title text-dark">${rows[key].의료기관명}</h5>
                       <h6 class="card-subtitle text-dark" style="white-space: normal;">${rows[key].주소}</h6>
                       <p class="card-text text-dark">${rows[key][`검체채취\n가능여부`] === 'O' ? '검채채취 가능' : '검채채취 불가'}</p>
-                      <a href="https://map.kakao.com/link/map/${rows[key].의료기관명},${position.lat},${position.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-warning">Kakao 지도</button></a>
-                      <a href="https://map.kakao.com/link/to/${rows[key].의료기관명},${position.lat},${position.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary">Kakao 길찾기</button></a>
+                      <a href="https://map.kakao.com/link/to/${rows[key].의료기관명},${position.lat},${position.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary btn-block">길찾기</button></a>
+                    </div>
+                  </div>
+                `
+
+                overlayPush(position, button, card)
+              }
+            }
+
+            var overlayPush = (position, button, card) => {
+              this.buttonOverlay.push(new kakao.maps.CustomOverlay({
+                map: this.map,
+                position: position,
+                content: button
+              }))
+
+              this.cardOverlay.push(new kakao.maps.CustomOverlay({
+                map: this.map,
+                position: position,
+                content: card,
+                zIndex: 1
+              }))
+            }
+          }
+        })
+      }
+    },
+    hospital () {
+      if (true) {
+        csv()
+        .fromStream(request.get('https://코로나.info/국민안심병원.csv'))
+        .then((rows)=>{
+          var ps = new kakao.maps.services.Places()
+          for (const key in rows) {
+            ps.keywordSearch(rows[key].주소, placesSearchCB)
+
+            function placesSearchCB (data, status, pagination) {
+              if (status === kakao.maps.services.Status.OK) {
+                var position = new kakao.maps.LatLng(data[0].y, data[0].x)
+
+                var button = `
+                  <button id="hospitalBtn${key}" style="display: block;" class="btn btn-sm btn-light" onclick="document.getElementsByClassName('btn').forEach(element => { element.style.display = 'inline' }); document.getElementsByClassName('card').forEach(element => { element.style.display = 'none' });document.getElementById('hospitalCard${key}').style.display = 'block'; document.getElementById('hospitalBtn${key}').style.display = 'none';">${rows[key].기관명}</button>
+                `
+
+                var card = `
+                  <div id="hospitalCard${key}" class="card" style="margin-left: -50%; width: 100%; min-width: 260px; display: none;">
+                    <div class="card-body">
+                      <button class="close" onclick="document.getElementById('hospitalCard${key}').style.display = 'none'; document.getElementById('hospitalBtn${key}').style.display = 'block'">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                      <small class="text-dark">${rows[key].기준일 ? rows[key].기준일 + ' 기준' : '기준 자료 없음'}</small>
+                      <h5 class="card-title text-dark">${rows[key].기관명}</h5>
+                      <h6 class="card-subtitle text-dark" style="white-space: normal;">${rows[key].주소}</h6>
+                      <p class="card-text text-dark">외래진료 ${rows[key][`신청유형\n(A: 외래진료, \nB: 외래진료 및 입원)`] === 'A' ? '' : '및 입원'} 운영</p>
+                      <a href="https://map.kakao.com/link/to/${rows[key].기관명},${position.lat},${position.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary btn-block">길찾기</button></a>
                     </div>
                   </div>
                 `
