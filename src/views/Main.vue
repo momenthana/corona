@@ -121,6 +121,8 @@
 import Bar from '@/components/Bar'
 import Nav from '@/components/Nav'
 import VueDaumMap from 'vue-daum-map'
+import request from 'request'
+import csv from 'csvtojson'
 
 export default {
   name: 'Main',
@@ -169,8 +171,21 @@ export default {
       this.search(this.request)
     },
     '$store.state.tab': function () {
-      if (this.$store.state.tab === 1 || this.$store.state.tab === 2) {
-        alert('아직 지원하지 않는 기능입니다!')
+      if (this.$store.state.tab === 0) {
+        this.remove()
+        this.request()
+        this.triage()
+      }
+      if (this.$store.state.tab === 1) {
+        this.remove()
+        this.triage()
+      }
+      if (this.$store.state.tab === 2) {
+        this.remove()
+      }
+      if (this.$store.state.tab === 3) {
+        this.remove()
+        this.request()
       }
     }
   },
@@ -181,7 +196,7 @@ export default {
       localStorage.setItem('dialog', false)
     },
     request () {
-      if (this.delayCenter.let + 0.03 < this.center.let || this.delayCenter.lng + 0.03 < this.center.lng || this.delayCenter.let - 0.03 > this.center.let || this.delayCenter.lng - 0.03 > this.center.lng) {
+      if ((this.$store.state.tab === 0 || this.$store.state.tab === 3) && (this.delayCenter.let + 0.03 < this.center.let || this.delayCenter.lng + 0.03 < this.center.lng || this.delayCenter.let - 0.03 > this.center.let || this.delayCenter.lng - 0.03 > this.center.lng)) {
         this.delayCenter = { let: this.center.let, lng: this.center.lng }
         axios.get(`https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=${this.center.lat}&lng=${this.center.lng}&m=10000`)
         .then(res => {
@@ -225,6 +240,62 @@ export default {
               }))
             }
           })
+        })
+      }
+    },
+    triage () {
+      if (true) {
+        csv()
+        .fromStream(request.get('https://코로나.info/선별진료소목록.csv'))
+        .then((rows)=>{
+          var ps = new kakao.maps.services.Places()
+
+          for (const key in rows) {
+            ps.keywordSearch(rows[key].주소, placesSearchCB)
+
+            function placesSearchCB (data, status, pagination) {
+              if (status === kakao.maps.services.Status.OK) {
+                var position = new kakao.maps.LatLng(data[0].y, data[0].x)
+
+                var button = `
+                  <button id="triageBtn${key}" style="display: block;" class="btn btn-sm btn-primary" onclick="document.getElementsByClassName('btn').forEach(element => { element.style.display = 'inline' }); document.getElementsByClassName('card').forEach(element => { element.style.display = 'none' });document.getElementById('triageCard${key}').style.display = 'block'; document.getElementById('triageBtn${key}').style.display = 'none';">${rows[key].의료기관명}</button>
+                `
+
+                var card = `
+                  <div id="triageCard${key}" class="card" style="margin-left: -50%; width: 100%; max-width: 90vw; display: none;">
+                    <div class="card-body">
+                      <button class="close" onclick="document.getElementById('triageCard${key}').style.display = 'none'; document.getElementById('triageBtn${key}').style.display = 'block'">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                      <small class="text-dark">${rows[key].기준일시 ? rows[key].기준일시 + ' 기준' : '기준 자료 없음'}</small>
+                      <h5 class="card-title text-dark">${rows[key].의료기관명}</h5>
+                      <h6 class="card-subtitle text-dark" style="white-space: normal;">${rows[key].주소}</h6>
+                      <p class="card-text text-dark">${rows[key][`검체채취\n가능여부`] === 'O' ? '검채채취 가능' : '검채채취 불가'}</p>
+                      <a href="https://map.kakao.com/link/map/${rows[key].의료기관명},${position.lat},${position.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-warning">Kakao 지도</button></a>
+                      <a href="https://map.kakao.com/link/to/${rows[key].의료기관명},${position.lat},${position.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary">Kakao 길찾기</button></a>
+                    </div>
+                  </div>
+                `
+
+                overlayPush(position, button, card)
+              }
+            }
+
+            var overlayPush = (position, button, card) => {
+              this.buttonOverlay.push(new kakao.maps.CustomOverlay({
+                map: this.map,
+                position: position,
+                content: button
+              }))
+
+              this.cardOverlay.push(new kakao.maps.CustomOverlay({
+                map: this.map,
+                position: position,
+                content: card,
+                zIndex: 1
+              }))
+            }
+          }
         })
       }
     },
