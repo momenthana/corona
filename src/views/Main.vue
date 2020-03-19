@@ -29,7 +29,7 @@
             <v-btn
               dark
               color="deep-orange accent-4"
-              @click="this.close"
+              @click="close()"
             >
               숨기기
             </v-btn>
@@ -51,7 +51,7 @@
         :mapTypeId="mapTypeId"
         :libraries="libraries"
         @load="load"
-        @center_changed="this.request"
+        @center_changed="request()"
         style="width:100vw;height:100%;"
       />
       <v-toolbar
@@ -189,19 +189,9 @@ export default {
       localStorage.setItem('dialog', false)
     },
     load (map) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          var lat = position.coords.latitude
-          var lng = position.coords.longitude
-          map.setLevel(4)
-          map.setCenter(new kakao.maps.LatLng(lat, lng))
-          this.request()
-        })
-      }
-
-      this.request()
-
       this.map = map
+      this.location()
+      this.request()
     },
     search () {
       var ps = new kakao.maps.services.Places()
@@ -363,6 +353,7 @@ export default {
                       <small class="text-dark">${rows[key].기준일 ? rows[key].기준일 + ' 기준' : '기준 자료 없음'}</small>
                       <h5 class="card-title text-dark">${rows[key].기관명}</h5>
                       <h6 class="card-subtitle text-dark" style="white-space: normal;">${rows[key].주소}</h6>
+                      <p class="card-text text-dark">전화번호 ${rows[key].전화번호}</p>
                       <p class="card-text text-dark">외래진료 ${rows[key][`신청유형\n(A: 외래진료, \nB: 외래진료 및 입원)`] === 'A' ? '' : '및 입원'} 운영</p>
                       <a href="https://map.kakao.com/link/to/${rows[key].기관명},${position.lat},${position.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary btn-block">길찾기</button></a>
                     </div>
