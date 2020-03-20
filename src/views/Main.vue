@@ -200,58 +200,59 @@ export default {
     location () {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(pos) {
-          var lat = pos.coords.latitude
-          var lon = pos.coords.longitude
+          let lat = pos.coords.latitude
+          let lng = pos.coords.longitude
 
-          setCenter(lat, lon)
+          setCenter(lat, lng)
         })
       }
 
-      let setCenter = (lat, lon) => {
+      let setCenter = (lat, lng) => {
         this.map.setLevel(4)
-        this.map.setCenter(new kakao.maps.LatLng(lat, lon))
+        this.map.setCenter(new kakao.maps.LatLng(lat, lng))
         this.mask()
       }
     },
     mask () {
-      if ((this.$store.state.tab === 0 || this.$store.state.tab === 3) && (this.delayCenter.let + 0.03 < this.center.let || this.delayCenter.lng + 0.03 < this.center.lng || this.delayCenter.let - 0.03 > this.center.let || this.delayCenter.lng - 0.03 > this.center.lng)) {
-        this.delayCenter = { let: this.center.let, lng: this.center.lng }
+      if ((this.$store.state.tab === 0 || this.$store.state.tab === 3) && (this.delayCenter.lat + 0.03 < this.center.lat || this.delayCenter.lng + 0.03 < this.center.lng || this.delayCenter.lat - 0.03 > this.center.lat || this.delayCenter.lng - 0.03 > this.center.lng)) {
+        this.delayCenter = { lat: this.center.lat, lng: this.center.lng }
         axios.get(`https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=${this.center.lat}&lng=${this.center.lng}&m=10000`)
         .then(res => {
-          res.data.stores.forEach(element => {
-            if(this.empty ? (element.remain_stat === 'plenty' || element.remain_stat === 'some' || element.remain_stat === 'few') : true) {
-              var position =  new kakao.maps.LatLng(element.lat, element.lng)
-              var remain_stat = element.remain_stat === 'plenty' ? '100+' : element.remain_stat === 'some' ? '30+' : element.remain_stat === 'few' ? '1~30' : element.created_at ? '소진' : '자료 없음'
-              var color = element.remain_stat === 'plenty' ? 'success' : element.remain_stat === 'some' ? 'warning' : element.remain_stat === 'few' ? 'danger' : 'dark'
+          res.data.stores.forEach(e => {
+            if(this.empty ? (e.remain_stat === 'plenty' || e.remain_stat === 'some' || e.remain_stat === 'few') : true) {
+              var remain_stat = e.remain_stat === 'plenty' ? '100+' : e.remain_stat === 'some' ? '30+' : e.remain_stat === 'few' ? '1~30' : e.created_at ? '소진' : '자료 없음'
+              var color = e.remain_stat === 'plenty' ? 'success' : e.remain_stat === 'some' ? 'warning' : e.remain_stat === 'few' ? 'danger' : 'dark'
 
               var button = `
-                <button id="maskBtn${element.code}" class="btn btn-sm btn-${color}" onclick="document.getElementsByClassName('btn').forEach(element => { element.style.display = 'inline' }); document.getElementsByClassName('card').forEach(element => { element.style.display = 'none' });document.getElementById('maskCard${element.code}').style.display = 'block'; document.getElementById('maskBtn${element.code}').style.display = 'none';">${remain_stat}</button>
+                <button id="maskBtn${e.code}" class="btn btn-sm btn-${color}" onclick="document.getElementsByClassName('btn').forEach(e => { e.style.display = 'inline' }); document.getElementsByClassName('card').forEach(e => { e.style.display = 'none' });document.getElementById('maskCard${e.code}').style.display = 'block'; document.getElementById('maskBtn${e.code}').style.display = 'none';">${remain_stat}</button>
               `
 
               var card = `
-                <div id="maskCard${element.code}" class="card" style="margin-left: -50%; width: 100%; min-width: 260px; display: none;">
+                <div id="maskCard${e.code}" class="card" style="margin-left: -50%; width: 100%; min-width: 260px; display: none;">
                   <div class="card-body">
-                    <button class="close" onclick="document.getElementById('maskCard${element.code}').style.display = 'none'; document.getElementById('maskBtn${element.code}').style.display = 'block'">
+                    <button class="close" onclick="document.getElementById('maskCard${e.code}').style.display = 'none'; document.getElementById('maskBtn${e.code}').style.display = 'block'">
                       <span aria-hidden="true">&times;</span>
                     </button>
-                    <small class="text-dark">${element.created_at ? element.created_at + ' 기준' : '기준 자료 없음'}</small>
-                    <h5 class="card-title text-dark"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${element.name}</h5>
-                    <h6 class="card-subtitle text-dark" style="white-space: normal;">${element.addr}</h6>
-                    <p class="card-text text-dark">${element.stock_at ? element.stock_at + ' 입고' : '입고 자료 없음'}</p>
-                    <a href="https://map.kakao.com/link/to/${element.name},${element.lat},${element.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary btn-block">길찾기</button></a>
+                    <small class="text-dark">${e.created_at ? e.created_at + ' 기준' : '기준 자료 없음'}</small>
+                    <h5 class="card-title text-dark"><button class="btn btn-sm btn-${color}">${remain_stat}</button> ${e.name}</h5>
+                    <h6 class="card-subtitle text-dark" style="white-space: normal;">${e.addr}</h6>
+                    <p class="card-text text-dark">${e.stock_at ? e.stock_at + ' 입고' : '입고 자료 없음'}</p>
+                    <a href="https://map.kakao.com/link/to/${e.name},${e.lat},${e.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary btn-block">길찾기</button></a>
                   </div>
                 </div>
               `
 
+              let pos = new kakao.maps.LatLng(e.lat, e.lng)
+
               this.buttonOverlay.push(new kakao.maps.CustomOverlay({
                 map: this.map,
-                position: position,
+                position: pos,
                 content: button
               }))
 
               this.cardOverlay.push(new kakao.maps.CustomOverlay({
                 map: this.map,
-                position: position,
+                position: pos,
                 content: card,
                 zIndex: 1
               }))
@@ -271,10 +272,8 @@ export default {
 
             function placesSearchCB (data, status, pagination) {
               if (status === kakao.maps.services.Status.OK) {
-                var position = new kakao.maps.LatLng(data[0].y, data[0].x)
-
                 var button = `
-                  <button id="triageBtn${key}" class="btn btn-sm btn-primary" onclick="document.getElementsByClassName('btn').forEach(element => { element.style.display = 'inline' }); document.getElementsByClassName('card').forEach(element => { element.style.display = 'none' });document.getElementById('triageCard${key}').style.display = 'block'; document.getElementById('triageBtn${key}').style.display = 'none';">${rows[key].의료기관명}</button>
+                  <button id="triageBtn${key}" class="btn btn-sm btn-primary" onclick="document.getElementsByClassName('btn').forEach(e => { e.style.display = 'inline' }); document.getElementsByClassName('card').forEach(e => { e.style.display = 'none' });document.getElementById('triageCard${key}').style.display = 'block'; document.getElementById('triageBtn${key}').style.display = 'none';">${rows[key].의료기관명}</button>
                 `
 
                 var card = `
@@ -287,25 +286,25 @@ export default {
                       <h5 class="card-title text-dark">${rows[key].의료기관명}</h5>
                       <h6 class="card-subtitle text-dark" style="white-space: normal;">${rows[key].주소} (${rows[key][`대표 전화번호`]})</h6>
                       <p class="card-text text-dark">${rows[key][`검체채취\n가능여부`] === 'O' ? '검채채취 가능' : '검채채취 불가'}</p>
-                      <a href="https://map.kakao.com/link/to/${rows[key].의료기관명},${position.lat},${position.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary btn-block">길찾기</button></a>
+                      <a href="https://map.kakao.com/link/to/${rows[key].의료기관명},${data[0].y},${data[0].x}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary btn-block">길찾기</button></a>
                     </div>
                   </div>
                 `
 
-                overlayPush(position, button, card)
+                overlayPush(new kakao.maps.LatLng(data[0].y, data[0].x), button, card)
               }
             }
 
-            var overlayPush = (position, button, card) => {
+            var overlayPush = (pos, button, card) => {
               this.buttonOverlay.push(new kakao.maps.CustomOverlay({
                 map: this.map,
-                position: position,
+                position: pos,
                 content: button
               }))
 
               this.cardOverlay.push(new kakao.maps.CustomOverlay({
                 map: this.map,
-                position: position,
+                position: pos,
                 content: card,
                 zIndex: 1
               }))
@@ -323,10 +322,8 @@ export default {
 
             function placesSearchCB (data, status, pagination) {
               if (status === kakao.maps.services.Status.OK) {
-                var position = new kakao.maps.LatLng(data[0].y, data[0].x)
-
                 var button = `
-                  <button id="hospitalBtn${key}" class="btn btn-sm btn-light" onclick="document.getElementsByClassName('btn').forEach(element => { element.style.display = 'inline' }); document.getElementsByClassName('card').forEach(element => { element.style.display = 'none' });document.getElementById('hospitalCard${key}').style.display = 'block'; document.getElementById('hospitalBtn${key}').style.display = 'none';">${rows[key].기관명}</button>
+                  <button id="hospitalBtn${key}" class="btn btn-sm btn-light" onclick="document.getElementsByClassName('btn').forEach(e => { e.style.display = 'inline' }); document.getElementsByClassName('card').forEach(e => { e.style.display = 'none' });document.getElementById('hospitalCard${key}').style.display = 'block'; document.getElementById('hospitalBtn${key}').style.display = 'none';">${rows[key].기관명}</button>
                 `
 
                 var card = `
@@ -339,25 +336,25 @@ export default {
                       <h5 class="card-title text-dark">${rows[key].기관명}</h5>
                       <h6 class="card-subtitle text-dark" style="white-space: normal;">${rows[key].주소} (${rows[key].전화번호})</h6>
                       <p class="text-dark">외래진료 ${rows[key][`신청유형\n(A: 외래진료, \nB: 외래진료 및 입원)`] === 'A' ? '' : '및 입원'} 운영</p>
-                      <a href="https://map.kakao.com/link/to/${rows[key].기관명},${position.lat},${position.lng}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary btn-block">길찾기</button></a>
+                      <a href="https://map.kakao.com/link/to/${rows[key].기관명},${data[0].y},${data[0].x}" target="_blank" style="text-decoration: none;"><button class="btn btn-outline-primary btn-block">길찾기</button></a>
                     </div>
                   </div>
                 `
 
-                overlayPush(position, button, card)
+                overlayPush(new kakao.maps.LatLng(data[0].y, data[0].x), button, card)
               }
             }
 
-            var overlayPush = (position, button, card) => {
+            var overlayPush = (pos, button, card) => {
               this.buttonOverlay.push(new kakao.maps.CustomOverlay({
                 map: this.map,
-                position: position,
+                position: pos,
                 content: button
               }))
 
               this.cardOverlay.push(new kakao.maps.CustomOverlay({
                 map: this.map,
-                position: position,
+                position: pos,
                 content: card,
                 zIndex: 1
               }))
@@ -366,15 +363,15 @@ export default {
         })
     },
     remove () {
-      this.buttonOverlay.forEach(element => {
-        element.setMap(null)
+      this.buttonOverlay.forEach(e => {
+        e.setMap(null)
       })
-      this.cardOverlay.forEach(element => {
-        element.setMap(null)
+      this.cardOverlay.forEach(e => {
+        e.setMap(null)
       })
       this.buttonOverlay = []
       this.cardOverlay = []
-      this.delayCenter = { let: 0, lng: 0 }
+      this.delayCenter = { lat: 0, lng: 0 }
     }
   }
 }
