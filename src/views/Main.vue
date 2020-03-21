@@ -51,7 +51,7 @@
         :mapTypeId="mapTypeId"
         :libraries="libraries"
         @load="load"
-        @center_changed="mask()"
+        @center_changed="request()"
         style="width:100vw;height:100%;"
       />
       <v-toolbar
@@ -67,13 +67,13 @@
           v-model="addr"
           placeholder="장소 검색"
           prepend-icon="mdi-magnify"
-          @keyup.native.enter="remove(); search();"
+          @keyup.native.enter="search()"
         ></v-text-field>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
             <v-btn
               icon
-              @click="remove(); location();"
+              @click="location()"
               v-on="on"
             >
               <v-icon>
@@ -87,7 +87,7 @@
           <template v-slot:activator="{ on }">
             <v-btn
               icon
-              @click="remove(); mask();"
+              @click="request()"
               v-on="on"
             >
               <v-icon>
@@ -106,7 +106,7 @@
               color="orange"
               v-on="on"
               class="ml-3"
-              @change="remove(); mask();"
+              @change="request()"
             ></v-switch>
           </template>
           <span>소진된 장소 숨기기</span>
@@ -150,24 +150,7 @@ export default {
 
   watch: {
     '$store.state.tab': function () {
-      if (this.$store.state.tab === 0) {
-        this.remove()
-        this.mask()
-        this.triage()
-        this.hospital()
-      }
-      if (this.$store.state.tab === 1) {
-        this.remove()
-        this.triage()
-      }
-      if (this.$store.state.tab === 2) {
-        this.hospital()
-        this.remove()
-      }
-      if (this.$store.state.tab === 3) {
-        this.remove()
-        this.mask()
-      }
+      this.request()
     }
   },
 
@@ -178,8 +161,8 @@ export default {
     },
     load (map) {
       this.map = map
+      this.request()
       this.location()
-      this.mask()
     },
     search () {
       var ps = new kakao.maps.services.Places()
@@ -194,7 +177,7 @@ export default {
       let setCenter = (lat, lon) => {
         this.map.setLevel(4)
         this.map.setCenter(new kakao.maps.LatLng(lat, lon))
-        this.mask()
+        this.request()
       }
     },
     location () {
@@ -210,6 +193,20 @@ export default {
       let setCenter = (lat, lng) => {
         this.map.setLevel(4)
         this.map.setCenter(new kakao.maps.LatLng(lat, lng))
+        this.request()
+      }
+    },
+    request () {
+      this.remove()
+      if (this.$store.state.tab === 0) {
+        this.mask()
+        this.triage()
+        this.hospital()
+      } else if (this.$store.state.tab === 1) {
+        this.triage()
+      } else if (this.$store.state.tab === 2) {
+        this.hospital()
+      } else if (this.$store.state.tab === 3) {
         this.mask()
       }
     },
