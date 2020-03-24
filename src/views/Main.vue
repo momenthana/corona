@@ -137,7 +137,8 @@ export default {
   data: () => ({
     appKey: 'dce438490f21b3aaa6e6176c852d813a',
     center: { lat: 37.5411, lng: 127.068 },
-    delayCenter: { lat: 0, lng: 0 },
+    lat: 37.5411,
+    lng: 127.068,
     level: 4,
     mapTypeId: VueDaumMap.MapTypeId.NORMAL,
     libraries: ['services'],
@@ -211,8 +212,9 @@ export default {
       }
     },
     mask () {
-      if ((this.$store.state.tab === 0 || this.$store.state.tab === 3) && (this.delayCenter.lat + 0.03 < this.center.lat || this.delayCenter.lng + 0.03 < this.center.lng || this.delayCenter.lat - 0.03 > this.center.lat || this.delayCenter.lng - 0.03 > this.center.lng)) {
-        this.delayCenter = { lat: this.center.lat, lng: this.center.lng }
+      if (this.lat - 0.03 > this.center.lat || this.lat + 0.03 < this.center.lat || this.lng - 0.03 > this.center.lng || this.lng + 0.03 < this.center.lng) {
+        this.lat = this.center.lat
+        this.lng = this.center.lng
         axios.get(`https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=${this.center.lat}&lng=${this.center.lng}&m=10000`)
         .then(res => {
           res.data.stores.forEach(e => {
