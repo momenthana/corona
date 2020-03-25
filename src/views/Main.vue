@@ -87,7 +87,7 @@
           <template v-slot:activator="{ on }">
             <v-btn
               icon
-              @click="request()"
+              @click="refresh()"
               v-on="on"
             >
               <v-icon>
@@ -106,7 +106,7 @@
               color="orange"
               v-on="on"
               class="ml-3"
-              @change="request()"
+              @change="refresh()"
             ></v-switch>
           </template>
           <span>소진된 장소 숨기기</span>
@@ -137,8 +137,8 @@ export default {
   data: () => ({
     appKey: 'dce438490f21b3aaa6e6176c852d813a',
     center: { lat: 37.5411, lng: 127.068 },
-    lat: 37.5411,
-    lng: 127.068,
+    lat: 0,
+    lng: 0,
     level: 4,
     mapTypeId: VueDaumMap.MapTypeId.NORMAL,
     libraries: ['services'],
@@ -184,10 +184,7 @@ export default {
     location () {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(pos) {
-          let lat = pos.coords.latitude
-          let lng = pos.coords.longitude
-
-          setCenter(lat, lng)
+          setCenter(pos.coords.latitude, pos.coords.longitude)
         })
       }
 
@@ -197,8 +194,13 @@ export default {
         this.request()
       }
     },
-    request () {
+    refresh () {
+      this.lat = 0
+      this.lng = 0
       this.remove()
+      this.request()
+    },
+    request () {
       if (this.$store.state.tab === 0) {
         this.mask()
         this.triage()
@@ -261,6 +263,7 @@ export default {
       }
     },
     triage () {
+      this.remove()
       csv()
         .fromStream(request.get('https://코로나.info/선별진료소.csv'))
         .then((rows)=>{
@@ -312,6 +315,7 @@ export default {
         })
     },
     hospital () {
+      this.remove()
       csv()
         .fromStream(request.get('https://코로나.info/국민안심병원.csv'))
         .then((rows)=>{
@@ -370,7 +374,6 @@ export default {
       })
       this.buttonOverlay = []
       this.cardOverlay = []
-      this.delayCenter = { lat: 0, lng: 0 }
     }
   }
 }
