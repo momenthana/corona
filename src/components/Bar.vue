@@ -6,12 +6,11 @@
   >
     <v-app-bar-nav-icon @click="$store.state.drawer = true"></v-app-bar-nav-icon>
 
-    <v-toolbar-title>코로나.info</v-toolbar-title>
+    <v-toolbar-title>코로나 INFO</v-toolbar-title>
 
     <template v-slot:extension>
       <v-tabs
         :align-with-title="!$vuetify.breakpoint.xsOnly"
-        slider-color="white"
         color="white"
         v-model="$store.state.tab"
       >
