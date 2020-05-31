@@ -18,12 +18,8 @@
               서비스되는 재고 현황 정보는 데이터 처리 및 전송으로 인해 실제 현장 판매처의 현황과 5분~10분 정도의 차이가 있습니다.
             </p>
             <p class="text--primary">
-              일부 약국에서는 번호표 배부 후 판매하는 약국도 있어 서비스되는 정보가 번호표 배부 현황을 반영하지는 못하고 있습니다.
-            </p>
-            <p class="text--primary">
               어려운 환경에서도 일선에서 공헌해 주시는 약사님, 우체국 종사자분들 응원합니다!
             </p>
-            <a href="https://open.kakao.com/o/gKFJSh1b" target="_blink" style="text-decoration: none;">카카오톡 오픈채팅방</a>
           </v-card-text>
           <v-card-actions>
             <v-btn
@@ -136,10 +132,10 @@ export default {
 
   data: () => ({
     appKey: 'dce438490f21b3aaa6e6176c852d813a',
-    center: { lat: 37.5411, lng: 127.068 },
+    center: { lat: 37.507587841577454, lng: 127.06057692858644 },
     lat: 0,
     lng: 0,
-    level: 4,
+    level: 3,
     mapTypeId: VueDaumMap.MapTypeId.NORMAL,
     libraries: ['services'],
     addr: null,
@@ -176,7 +172,7 @@ export default {
       }
 
       let setCenter = (lat, lon) => {
-        this.map.setLevel(4)
+        this.map.setLevel(3)
         this.map.setCenter(new kakao.maps.LatLng(lat, lon))
         this.request()
       }
@@ -189,7 +185,7 @@ export default {
       }
 
       let setCenter = (lat, lng) => {
-        this.map.setLevel(4)
+        this.map.setLevel(3)
         this.map.setCenter(new kakao.maps.LatLng(lat, lng))
         this.request()
       }
